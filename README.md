@@ -1,3 +1,11 @@
+Run project:
+
+```
+docker-compose up --build
+```
+
+For frontend: 
+
 ```
 POST /register
 Отдаём: {"user_id": 123}
