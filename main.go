@@ -105,13 +105,30 @@ func balanceHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]int64{"balance": balance})
 }
 
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next(w, r)
+	}
+}
+
+
 func main() {
 	initDB()
+ 
+ http.HandleFunc("/register", corsMiddleware(registerHandler))
+	http.HandleFunc("/tap", corsMiddleware(tapHandler))
+	http.HandleFunc("/balance", corsMiddleware(balanceHandler))
 
-	http.HandleFunc("/register", registerHandler)
-	http.HandleFunc("/tap", tapHandler)
-	http.HandleFunc("/balance", balanceHandler)
-
+	
 	log.Println("server listening on localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
